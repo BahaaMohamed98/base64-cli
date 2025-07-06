@@ -1,5 +1,4 @@
 #pragma once
-#include <array>
 #include <stdexcept>
 #include <string>
 
@@ -9,29 +8,14 @@ namespace {
         return TABLE[c];
     }
 
-    constexpr auto build_decode_table = [] {
-        std::array<unsigned char, 256> table{};
-        for (int i = 0; i < 256; ++i) {
-            char c = (char) i;
-            table[i] = (c >= 'A' && c <= 'Z')   ? c - 'A'
-                       : (c >= 'a' && c <= 'z') ? c - 'a' + 26
-                       : (c >= '0' && c <= '9') ? c - '0' + 52
-                       : (c == '+')             ? 62
-                       : (c == '/')             ? 63
-                                                : -1;
-        }
-        return table;
-    };
-
-    constexpr auto DECODE_TABLE = build_decode_table();
-
     unsigned char decode(char c) {
-        if (c == '=') return 0;
-        auto val = DECODE_TABLE[(unsigned char) c];
-        if (val == (unsigned char) -1) {
-            throw std::runtime_error(std::string("Invalid Base64 character: ") + c);
-        }
-        return val;
+        if      (c == '=')             return 0;
+        else if (c >= 'A' && c <= 'Z') return c - 'A';
+        else if (c >= 'a' && c <= 'z') return c - 'a' + 26;
+        else if (c >= '0' && c <= '9') return c - '0' + 52;
+        else if (c == '+')             return 62;
+        else if (c == '/')             return 63;
+        else throw std::runtime_error(std::string("Invalid Base64 character: ") + c);
     }
 } // namespace
 
